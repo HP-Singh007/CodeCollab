@@ -4,6 +4,7 @@ const http = require('http')
 const cors = require('cors')
 const { Server } = require("socket.io");
 const ACTIONS = require("./src/Actions");
+const path = require("path");
 
 //config path
 dotenv.config({path:"./src/data/config.env"});
@@ -13,6 +14,11 @@ app.use(cors({
     origin: ["http://localhost:3000",process.env.FRONTEND_URL],
     methods: ["GET", "POST"]
 }))
+
+app.use(express.static('build'));
+app.use((req,res,next)=>{
+    res.sendFile(path.join(__dirname,'build','index.html'));
+})
 
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
@@ -74,7 +80,3 @@ server.listen(PORT,()=>{
     console.log(`Server started at ${PORT}`);
 })
 
-//test case
-app.get("/",(req,res)=>{
-    res.send("Working");
-})
