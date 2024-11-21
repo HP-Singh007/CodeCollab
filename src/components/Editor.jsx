@@ -1,14 +1,18 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import 'codemirror/theme/dracula.css';
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/closetag'
 import 'codemirror/addon/edit/closebrackets'
 import CodeMirror from 'codemirror';
+import ACTIONS from '../Actions';
 
-const Editor = () => {
+const Editor = ({socketRef, roomId, onCodeChange}) => {
+
+    const editorRef = useRef(null);
+
     async function init(){
-        CodeMirror.fromTextArea(document.getElementById('codeEditorArea'),{
+        editorRef.current = CodeMirror.fromTextArea(document.getElementById('codeEditorArea'),{
             mode:{name:'javascript', json:true},
             theme:'dracula',
             autoCloseTags:true,
@@ -16,11 +20,35 @@ const Editor = () => {
             lineNumbers:true,
             
         });
+
+        editorRef.current.on('change',(instance,changes)=>{
+            const {origin} = changes;
+            const code = instance.getValue();
+            onCodeChange(code);
+            if(origin !== 'setValue'){
+                socketRef.current.emit(ACTIONS.CODE_CHANGE,{
+                    roomId,
+                    code
+                });
+            }
+        })
     }
 
     useEffect(()=>{
         init();
     },[]);
+
+    useEffect(()=>{
+        socketRef.current && socketRef.current.on(ACTIONS.CODE_CHANGE,({code})=>{
+            if(code != null){
+                editorRef.current.setValue(code);
+            }
+        })
+
+        return ()=>{
+            socketRef.current && socketRef.current.off(ACTIONS.CODE_CHANGE);
+        }
+    },[socketRef.current])
 
     return (
         <textarea id="codeEditorArea"/>

@@ -9,7 +9,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home/>}/>
-        <Route path="/editor/:room" element={<EditorPage/>}/>
+        <Route path="/editor/:roomId" element={<EditorPage/>}/>
       </Routes>
       <Toaster/>
     </Router>

@@ -31,7 +31,7 @@ const Home = () => {
     }
 
     const handleInputEnter=(e)=>{
-        if(e.key=='Enter'){
+        if(e.key==='Enter'){
             joinRoom();
         }
     }
